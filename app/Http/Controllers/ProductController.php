@@ -12,6 +12,11 @@ use App\Http\Resources\ProductResource;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -19,8 +24,14 @@ class ProductController extends Controller
     {
         $product = Product::get();
 
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'List data produk',
+            'product' => $product,
+        ]);
+
         //return collection of produ$product as a resource
-        return new ProductResource(true, 'List Data Produk', $product);
+        // return new ProductResource(true, 'List Data Produk', $product);
     }
 
     /**
@@ -38,8 +49,10 @@ class ProductController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'image'     => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'title'     => 'required',
-            'content'   => 'required',
+            'code'     => 'required',
+            'name'     => 'required',
+            'price'     => 'required|integer',
+            'stock'     => 'required|integer',
         ]);
 
         //check if validation fails
@@ -54,12 +67,19 @@ class ProductController extends Controller
         //create product
         $product = Product::create([
             'image'     => $image->hashName(),
-            'title'     => $request->title,
-            'content'   => $request->content,
+            'code'      => $request->code,
+            'name'      => $request->name,
+            'price'     => $request->price,
+            'stock'     => $request->stock,
         ]);
 
         //return response
-        return new ProductResource(true, 'Data product Berhasil Ditambahkan!', $product);
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'Produk berhasil ditambahkan',
+            'product' => $product,
+        ]);
+        // return new ProductResource(true, 'Data product Berhasil Ditambahkan!', $product);
     }
 
     /**
@@ -67,8 +87,13 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        // Show Data 
-        return new ProductResource(true, 'Data product Ditemukan!', $product);
+        // Show Data
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'Data produK ditemukan',
+            'product' => $product,
+        ]); 
+        // return new ProductResource(true, 'Data product Ditemukan!', $product);
     }
 
     /**
@@ -85,8 +110,10 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validator = Validator::make($request->all(), [
-            'title'     => 'required',
-            'content'   => 'required',
+            'code'     => 'required',
+            'name'     => 'required',
+            'price'     => 'required|integer',
+            'stock'     => 'required|integer',
         ]);
 
         //check if validation fails
@@ -107,21 +134,30 @@ class ProductController extends Controller
             //update product with new image
             $product->update([
                 'image'     => $image->hashName(),
-                'title'     => $request->title,
-                'content'   => $request->content,
+                'code'      => $request->code,
+                'name'      => $request->name,
+                'price'     => $request->price,
+                'stock'     => $request->stock,
             ]);
 
         } else {
 
             //update product without image
             $product->update([
-                'title'     => $request->title,
-                'content'   => $request->content,
+                'code'      => $request->code,
+                'name'      => $request->name,
+                'price'     => $request->price,
+                'stock'     => $request->stock,
             ]);
         }
 
         //return response
-        return new ProductResource(true, 'Data product Berhasil Diubah!', $product);
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'Data produK berhasil diubah',
+            'product' => $product,
+        ]);
+        // return new ProductResource(true, 'Data product Berhasil Diubah!', $product);
     }
 
     /**
@@ -135,6 +171,10 @@ class ProductController extends Controller
         $product->delete();
 
         //return response
-        return new ProductResource(true, 'Data Pproduk Berhasil Dihapus!', null);
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'Data produk berhasil dihapus',
+        ]);
+        // return new ProductResource(true, 'Data produk berhasil dihapus1', null);
     }
 }

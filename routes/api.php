@@ -29,4 +29,3 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 });
 
 Route::apiResource('/products', ProductController::class);
-
