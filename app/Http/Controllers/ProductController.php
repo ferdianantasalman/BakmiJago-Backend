@@ -24,10 +24,13 @@ class ProductController extends Controller
     {
         $product = Product::get();
 
+        // $image = "http://127.0.0.1:8000/public/product/" . $product->file('image');
+
         return response()->json([
             'status' => 'Success',
             'message' => 'List data produk',
-            'product' => $product,
+            'data' => $product,
+            // 'image' => $image,
         ]);
 
         //return collection of produ$product as a resource
@@ -52,7 +55,8 @@ class ProductController extends Controller
             'code'     => 'required',
             'name'     => 'required',
             'price'     => 'required|integer',
-            'stock'     => 'required|integer',
+            'qty'     => 'required|integer',
+            'category'     => 'required',
         ]);
 
         //check if validation fails
@@ -70,14 +74,16 @@ class ProductController extends Controller
             'code'      => $request->code,
             'name'      => $request->name,
             'price'     => $request->price,
-            'stock'     => $request->stock,
+            'qty'     => $request->qty,
+            'author_id'     => $request->author_id,
+            'category'     => $request->category,
         ]);
 
         //return response
         return response()->json([
             'status' => 'Success',
             'message' => 'Produk berhasil ditambahkan',
-            'product' => $product,
+            'data' => $product,
         ]);
         // return new ProductResource(true, 'Data product Berhasil Ditambahkan!', $product);
     }
@@ -91,8 +97,8 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'Success',
             'message' => 'Data produK ditemukan',
-            'product' => $product,
-        ]); 
+            'data' => $product,
+        ]);
         // return new ProductResource(true, 'Data product Ditemukan!', $product);
     }
 
@@ -112,8 +118,8 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'code'     => 'required',
             'name'     => 'required',
-            'price'     => 'required|integer',
-            'stock'     => 'required|integer',
+            'price'    => 'required|integer',
+            'stock'    => 'required|integer',
         ]);
 
         //check if validation fails
@@ -129,7 +135,7 @@ class ProductController extends Controller
             $image->storeAs('public/product', $image->hashName());
 
             //delete old image
-            Storage::delete('public/product/'.$product->image);
+            Storage::delete('public/product/' . $product->image);
 
             //update product with new image
             $product->update([
@@ -137,9 +143,10 @@ class ProductController extends Controller
                 'code'      => $request->code,
                 'name'      => $request->name,
                 'price'     => $request->price,
-                'stock'     => $request->stock,
+                'qty'     => $request->qty,
+                'author_id'     => $request->author_id,
+                'category'     => $request->category,
             ]);
-
         } else {
 
             //update product without image
@@ -147,7 +154,9 @@ class ProductController extends Controller
                 'code'      => $request->code,
                 'name'      => $request->name,
                 'price'     => $request->price,
-                'stock'     => $request->stock,
+                'qty'       => $request->qty,
+                'author_id' => $request->author_id,
+                'category'  => $request->category,
             ]);
         }
 
@@ -155,7 +164,7 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'Success',
             'message' => 'Data produK berhasil diubah',
-            'product' => $product,
+            'data' => $product,
         ]);
         // return new ProductResource(true, 'Data product Berhasil Diubah!', $product);
     }
@@ -165,7 +174,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        Storage::delete('public/product/'.$product->image);
+        Storage::delete('public/product/' . $product->image);
 
         //delete post
         $product->delete();

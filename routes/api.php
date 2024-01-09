@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,13 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::post('me', [AuthController::class, 'me']);
+    Route::post('me/{id}', [AuthController::class, 'edituser']);
+
+    // Role
+    Route::get('roles', [RoleController::class, 'index'])->middleware('role-2:admin,owner');
+
+    // Product
+    Route::apiResource('products', ProductController::class)->middleware('role-3:admin,owner,cashier');
 });
 
-Route::apiResource('/products', ProductController::class);
+// Route::apiResource('/products', ProductController::class);
