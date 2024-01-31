@@ -4,11 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\ProductResource;
-
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -17,37 +14,33 @@ class ProductController extends Controller
         $this->middleware('auth:api');
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $product = Product::get();
-
         // $image = "http://127.0.0.1:8000/public/product/" . $product->file('image');
+
+        $product = Product::orderBy('id', 'DESC')->get();
+
+        $makanan = Product::where('category', '=', "makanan")->get();
+        $minuman = Product::where('category', '=', "minuman")->get();
+        foreach ($product as $key => $val) {
+
+            // $url = Storage::disk('public')->get($val->image);
+            // $path = public_path($url);
+
+            $product[$key]->image_url = asset('storage/' . $val->image);
+
+            // $product[$key]->image_url = Storage::disk('public')->get($val->image);
+        }
 
         return response()->json([
             'status' => 'Success',
             'message' => 'List data produk',
-            'data' => $product,
-            // 'image' => $image,
+            'makanan' => $makanan,
+            'minuman' => $minuman,
+            'datas' => $product,
         ]);
-
-        //return collection of produ$product as a resource
-        // return new ProductResource(true, 'List Data Produk', $product);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -59,41 +52,56 @@ class ProductController extends Controller
             'category'     => 'required',
         ]);
 
+
         //check if validation fails
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json($validator->messages(), 422);
         }
 
-        //upload image
-        $image = $request->file('image');
-        $image->storeAs('public/product', $image->hashName());
-
-        //create product
-        $product = Product::create([
-            'image'     => $image->hashName(),
+        $data = [
             'code'      => $request->code,
             'name'      => $request->name,
             'price'     => $request->price,
             'qty'     => $request->qty,
-            'author_id'     => $request->author_id,
+            'author_id'     => auth()->user()->id,
             'category'     => $request->category,
-        ]);
+        ];
+
+        // upload image
+        if ($image = $request->file("image")) {
+            $destinationPath = "products/";
+            $profileImage = date("YmdHis") . "." . $image->getClientOriginalExtension();
+            $image->move($destinationPath, $profileImage);
+            $data["image"] = "$profileImage";
+        }
+
+        // if ($request->hasFile('image')) {
+        //     $data['image'] = $request->file('image')->store('produk');
+        // }
+
+        //create product
+        $product = Product::create($data);
 
         //return response
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'Produk berhasil ditambahkan',
-            'data' => $product,
-        ]);
-        // return new ProductResource(true, 'Data product Berhasil Ditambahkan!', $product);
+        if ($data) {
+            return response()->json([
+                'status' => 'Success',
+                'message' => 'Produk berhasil ditambahkan',
+                'data' => $product,
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'Failed',
+                'message' => "Produk gagal ditambahkan",
+            ], 400);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
+    public function show($id)
     {
         // Show Data
+        $product = Product::find($id);
+
         return response()->json([
             'status' => 'Success',
             'message' => 'Data produK ditemukan',
@@ -102,88 +110,101 @@ class ProductController extends Controller
         // return new ProductResource(true, 'Data product Ditemukan!', $product);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
+    public function update(Request $request, $id)
     {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Product $product)
-    {
         $validator = Validator::make($request->all(), [
             'code'     => 'required',
             'name'     => 'required',
-            'price'    => 'required|integer',
-            'stock'    => 'required|integer',
+            'price'     => 'required|integer',
+            'qty'     => 'required|integer',
+            'category'     => 'required',
+        ], [
+            'code.required' => 'code harus diisi ngab',
+            'name.required' => 'name harus diisi ngab',
+            'price.required' => 'price harus diisi ngab',
+            'qty.required' => 'qty harus diisi ngab',
         ]);
 
-        //check if validation fails
+        // check if validation fails
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json($validator->messages(), 422);
         }
 
-        //check if image is not empty
-        if ($request->hasFile('image')) {
+        $product = Product::find($id);
 
-            //upload image
-            $image = $request->file('image');
-            $image->storeAs('public/product', $image->hashName());
+        $data = [
+            'code'      => $request->code,
+            'name'      => $request->name,
+            'price'     => $request->price,
+            'qty'     => $request->qty,
+            'author_id'     => $product->author_id,
+            'category'     => $request->category,
+        ];
 
-            //delete old image
-            Storage::delete('public/product/' . $product->image);
+        // Update Image
+        if ($image = $request->file("image")) {
+            // remove old file
+            $path = "products/";
 
-            //update product with new image
-            $product->update([
-                'image'     => $image->hashName(),
-                'code'      => $request->code,
-                'name'      => $request->name,
-                'price'     => $request->price,
-                'qty'     => $request->qty,
-                'author_id'     => $request->author_id,
-                'category'     => $request->category,
+            if ($product->image != ''  && $product->image != null) {
+                $file_old = $path . $product->image;
+                unlink($file_old);
+            }
+
+            // upload new file
+            $destinationPath = "products/";
+            $profileImage = date("YmdHis") . "." . $image->getClientOriginalExtension();
+            $image->move($destinationPath, $profileImage);
+            $data["image"] = "$profileImage";
+        } else {
+            unset($data["image"]);
+        }
+
+        // if ($request->hasFile('image')) {
+        //     if ($product->image == null) {
+        //         $data['image'] = $request->file('image')->store('produk');
+        //     } else {
+        //         Storage::delete(Product::find($id)->image);
+        //         $data['image'] = $request->file('image')->store('produk');
+        //     }
+        // }
+
+        $product->update($data);
+
+        if ($product) {
+            return response()->json([
+                'status' => 'Success',
+                'message' => 'Produk berhasil diupdate',
+                'product' => $product,
             ]);
         } else {
-
-            //update product without image
-            $product->update([
-                'code'      => $request->code,
-                'name'      => $request->name,
-                'price'     => $request->price,
-                'qty'       => $request->qty,
-                'author_id' => $request->author_id,
-                'category'  => $request->category,
-            ]);
+            return response()->json([
+                'status' => 'Failed',
+                'message' => 'product gagal diupdate',
+            ], 400);
         }
-
-        //return response
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'Data produK berhasil diubah',
-            'data' => $product,
-        ]);
-        // return new ProductResource(true, 'Data product Berhasil Diubah!', $product);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
-        Storage::delete('public/product/' . $product->image);
+        if (Product::find($id)->image != NULL) {
+            Storage::delete(Product::find($id)->image);
+        }
 
-        //delete post
-        $product->delete();
+        $product = Product::find($id)->delete();
 
-        //return response
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'Data produk berhasil dihapus',
-        ]);
-        // return new ProductResource(true, 'Data produk berhasil dihapus1', null);
+        if ($product) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Barang berhasil dihapus',
+                'product' => Product::find($id),
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Barang gagal dihapus',
+            ], 400);
+        }
     }
 }

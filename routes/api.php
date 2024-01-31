@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RoleController;
 
 /*
@@ -33,7 +35,31 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::get('roles', [RoleController::class, 'index'])->middleware('role-2:admin,owner');
 
     // Product
-    Route::apiResource('products', ProductController::class)->middleware('role-3:admin,owner,cashier');
+    Route::get('products', [ProductController::class, 'index']);
+    Route::post('products', [ProductController::class, 'store']);
+    Route::get('products/{id}', [ProductController::class, 'show']);
+    Route::post('products/{id}', [ProductController::class, 'update']);
+    Route::delete('products/{id}', [ProductController::class, 'destroy']);
+
+    // Order
+    // Route::get('orders', [OrderController::class, 'index']);
+    // Route::post('orders', [OrderController::class, 'store']);
+    // Route::get('orders/{id}', [OrderController::class, 'show']);
+    // Route::post('orders/{id}', [OrderController::class, 'update']);
+    // Route::delete('orders/{id}', [OrderController::class, 'destroy']);
+
+    Route::get('invoices', [InvoiceController::class, 'invoices']);
+    Route::get('invoice/{id}', [InvoiceController::class, 'cekInvoice']);
+
+    // Route::post('invoice/{id}', [InvoiceController::class, 'updateStatusPembayaran']);
+    // Route::get('invoices/{status}', [InvoiceController::class, 'invoiceByStatus']);
+
+    Route::get('orders', [InvoiceController::class, 'orderedItems']);
+    // Route::get('orders/{status}', [InvoiceController::class, 'orderByStatus']);
+
+    Route::post('order', [InvoiceController::class, 'createOrder']);
+    Route::get('order/{id}', [InvoiceController::class, 'cekOrder']);
+    Route::post('order/{id}', [InvoiceController::class, 'updateStatusOrder']);
 });
 
 // Route::apiResource('/products', ProductController::class);

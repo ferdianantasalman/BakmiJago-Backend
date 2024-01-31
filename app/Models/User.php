@@ -50,7 +50,7 @@ class User extends Authenticatable implements JWTSubject
     ];
 
 
-     /**
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
@@ -70,7 +70,7 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    protected $with = ['role']; 
+    protected $with = ['role'];
 
 
     public function role()
@@ -80,10 +80,8 @@ class User extends Authenticatable implements JWTSubject
 
     public function hasRole($roleName)
     {
-        foreach ($this->role()->get() as $role)
-        {
-            if ($role->name == $roleName)
-            {
+        foreach ($this->role()->get() as $role) {
+            if ($role->name == $roleName) {
                 return true;
             }
         }

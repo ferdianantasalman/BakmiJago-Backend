@@ -14,4 +14,14 @@ class Product extends Model
     // protected $primaryKey = 'id_product';
 
     protected $guarded = [];
+
+    protected $casts = [
+        'qty' => 'integer',
+        'price' => 'integer',
+    ];
+
+    public function order()
+    {
+        return $this->hasMany(OrderedItem::class);
+    }
 }
