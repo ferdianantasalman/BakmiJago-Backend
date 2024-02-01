@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderedItemController;
 use App\Http\Controllers\RoleController;
 
 /*
@@ -48,18 +49,25 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     // Route::post('orders/{id}', [OrderController::class, 'update']);
     // Route::delete('orders/{id}', [OrderController::class, 'destroy']);
 
+    // Invoice
     Route::get('invoices', [InvoiceController::class, 'invoices']);
-    Route::get('invoice/{id}', [InvoiceController::class, 'cekInvoice']);
+    Route::get('invoices/{time}', [InvoiceController::class, 'invoicesByTime']);
+    Route::get('invoices/{id}', [InvoiceController::class, 'cekInvoice']);
 
     // Route::post('invoice/{id}', [InvoiceController::class, 'updateStatusPembayaran']);
     // Route::get('invoices/{status}', [InvoiceController::class, 'invoiceByStatus']);
 
-    Route::get('orders', [InvoiceController::class, 'orderedItems']);
+    // Order
+    Route::get('orders', [OrderedItemController::class, 'orderedItems']);
+    Route::get('orders_invoice/{id}', [OrderedItemController::class, 'orderedItemsByInvoice']);
+    Route::get('orders/{id}', [OrderedItemController::class, 'cekOrder']);
+
+    Route::post('orders', [OrderedItemController::class, 'createOrder']);
+
+
+    // Route::post('order/{id}', [OrderedItemControlleroller::class, 'updateStatusOrder']);
     // Route::get('orders/{status}', [InvoiceController::class, 'orderByStatus']);
 
-    Route::post('order', [InvoiceController::class, 'createOrder']);
-    Route::get('order/{id}', [InvoiceController::class, 'cekOrder']);
-    Route::post('order/{id}', [InvoiceController::class, 'updateStatusOrder']);
 });
 
 // Route::apiResource('/products', ProductController::class);
