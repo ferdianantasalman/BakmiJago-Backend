@@ -181,7 +181,7 @@ class ProductController extends Controller
         } else {
             return response()->json([
                 'status' => 'Failed',
-                'message' => 'product gagal diupdate',
+                'message' => 'Produk gagal diupdate',
             ], 400);
         }
     }
@@ -203,7 +203,7 @@ class ProductController extends Controller
         } else {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Barang gagal dihapus',
+                'message' => 'Produk gagal dihapus',
             ], 400);
         }
     }

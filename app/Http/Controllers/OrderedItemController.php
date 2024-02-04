@@ -19,13 +19,13 @@ class OrderedItemController extends Controller
         //     $query->where('author_id', Auth::user()->id);
         // }
 
-        $response = [
-            'status' => 'Success',
-            'message' => 'List Data Order',
-            'orders' => $orderedItem
-        ];
 
         if ($orderedItem) {
+            $response = [
+                'status' => 'Success',
+                'message' => 'List Data Order',
+                'orders' => $orderedItem
+            ];
             return response()->json($response);
         } else {
             return response()->json([
@@ -33,6 +33,7 @@ class OrderedItemController extends Controller
                 'message' => "Data gagal ditemukan",
             ], 400);
         }
+        // return response()->json(['halo']);
     }
 
     public function orderedItemsByInvoice($id)
@@ -43,13 +44,13 @@ class OrderedItemController extends Controller
         //     $query->where('author_id', Auth::user()->id);
         // }
 
-        $response = [
-            'status' => 'Success',
-            'message' => 'List Data Order',
-            'orders' => $orderedItem
-        ];
 
         if ($orderedItem) {
+            $response = [
+                'status' => 'Success',
+                'message' => 'List Data Order',
+                'orders' => $orderedItem
+            ];
             return response()->json($response);
         } else {
             return response()->json([
@@ -102,7 +103,7 @@ class OrderedItemController extends Controller
         $rules = [
             'product_id' => 'required|integer',
             'qty' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
+            // 'price' => 'required|numeric|min:0',
         ];
 
         $messages = [

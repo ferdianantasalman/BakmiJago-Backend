@@ -12,6 +12,7 @@ class InvoiceController extends Controller
     {
         $invoices = Invoice::orderBy('id', 'DESC')->get();
 
+
         // if (Auth::user()->role_id == 2) {
         //     $query->where('author_id', Auth::user()->id);
         // }
@@ -68,7 +69,7 @@ class InvoiceController extends Controller
 
         $response = [
             'status' => 'Success',
-            'message' => 'List data invoice',
+            'message' => 'List Data Invoice',
             'invoices' => $invoices
         ];
 
@@ -80,40 +81,5 @@ class InvoiceController extends Controller
                 'message' => "Data gagal ditemukan",
             ], 400);
         }
-    }
-
-    public function cekInvoice($id)
-    {
-        $grouped_orders = OrderedItem::select('invoice_id')->groupBy('invoice_id')->where('invoice_id', $id)->get();
-
-        foreach ($grouped_orders as $grouped_order) {
-            $orders = OrderedItem::where('invoice_id', $grouped_order->invoice_id)->get();
-            $order_details = [];
-            $total_price = 0;
-
-            foreach ($orders as $order) {
-                $product = [
-                    'product_id' => $order->product_id,
-                    'nama_product' => $order->product->name,
-                    'qty' => $order->qty,
-                    'price' => $order->product->price,
-                    'total_price' => $order->price,
-                    'status' => $order->status,
-                    'image' => $order->product->image,
-                ];
-
-                $order_details[] = $product;
-                $total_price += $order->total_price;
-            }
-
-            $order_data = [
-                'invoice_id' => $grouped_order->invoice_id,
-                'invoice' => $grouped_order->invoice->invoice,
-                'price' => $grouped_order->invoice->total_price,
-                'products' => $order_details,
-            ];
-        }
-
-        return response()->json($order_data);
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderedItemController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 
 /*
@@ -43,31 +44,22 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::delete('products/{id}', [ProductController::class, 'destroy']);
 
     // Order
-    // Route::get('orders', [OrderController::class, 'index']);
-    // Route::post('orders', [OrderController::class, 'store']);
-    // Route::get('orders/{id}', [OrderController::class, 'show']);
-    // Route::post('orders/{id}', [OrderController::class, 'update']);
-    // Route::delete('orders/{id}', [OrderController::class, 'destroy']);
+    Route::get('orders', [OrderedItemController::class, 'orderedItems']);
+    Route::get('orders_invoice/{id}', [OrderedItemController::class, 'orderedItemsByInvoice']);
+    Route::get('orders/{id}', [OrderedItemController::class, 'cekOrder']);
+    Route::post('orders', [OrderedItemController::class, 'createOrder']);
 
     // Invoice
     Route::get('invoices', [InvoiceController::class, 'invoices']);
     Route::get('invoices/{time}', [InvoiceController::class, 'invoicesByTime']);
-    Route::get('invoices/{id}', [InvoiceController::class, 'cekInvoice']);
 
-    // Route::post('invoice/{id}', [InvoiceController::class, 'updateStatusPembayaran']);
-    // Route::get('invoices/{status}', [InvoiceController::class, 'invoiceByStatus']);
-
-    // Order
-    Route::get('orders', [OrderedItemController::class, 'orderedItems']);
-    Route::get('orders_invoice/{id}', [OrderedItemController::class, 'orderedItemsByInvoice']);
-    Route::get('orders/{id}', [OrderedItemController::class, 'cekOrder']);
-
-    Route::post('orders', [OrderedItemController::class, 'createOrder']);
-
-
-    // Route::post('order/{id}', [OrderedItemControlleroller::class, 'updateStatusOrder']);
-    // Route::get('orders/{status}', [InvoiceController::class, 'orderByStatus']);
-
+    // Report
+    Route::get('reports', [ReportController::class, 'index']);
+    Route::post('reports', [ReportController::class, 'store']);
+    Route::get('reports/{id}', [ReportController::class, 'show']);
+    Route::post('reports/{id}', [ReportController::class, 'update']);
+    Route::delete('reports/{id}', [ReportController::class, 'destroy']);
+    Route::get('reports_income/{time}', [ReportController::class, 'incomeReportByTime']);
+    Route::get('reports_outcome/{time}', [ReportController::class, 'outcomeReportByTime']);
+    Route::get('reports_revenue/{time}', [ReportController::class, 'revenueReportByTime']);
 });
-
-// Route::apiResource('/products', ProductController::class);
