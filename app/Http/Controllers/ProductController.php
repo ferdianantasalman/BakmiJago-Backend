@@ -22,6 +22,7 @@ class ProductController extends Controller
 
         $makanan = Product::where('category', '=', "makanan")->get();
         $minuman = Product::where('category', '=', "minuman")->get();
+
         foreach ($product as $key => $val) {
 
             // $url = Storage::disk('public')->get($val->image);

@@ -140,6 +140,56 @@ class ReportController extends Controller
         }
     }
 
+    public function reportsByTime($time)
+    {
+        $query = Report::query();
+
+        switch ($time) {
+            case 'today';
+                $query->whereDate('created_at', Carbon::today());
+                break;
+            case 'yesterday';
+                $query->whereDate('created_at', Carbon::yesterday());
+                break;
+            case 'this_week';
+                $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                break;
+            case 'last_week';
+                $query->whereBetween('created_at', [Carbon::now()->subWeek(), Carbon::now()]);
+                break;
+            case 'this_month';
+                $query->whereMonth('created_at', Carbon::now()->month);
+                break;
+            case 'last_month';
+                $query->whereMonth('created_at', Carbon::now()->subMonth()->month);
+                break;
+            case 'this_year';
+                $query->whereYear('created_at', Carbon::now()->year);
+                break;
+            case 'last_year';
+                $query->whereYear('created_at', Carbon::now()->subYear()->year);
+                break;
+        }
+
+        $reports = $query->orderBy('id', 'DESC')->get();
+
+
+        $response = [
+            'status' => 'Success',
+            'message' => 'List Data Laporan',
+            'reports' => $reports
+        ];
+
+        if ($reports) {
+            return response()->json($response);
+        } else {
+            return response()->json([
+                'status' => 'Failed',
+                'message' => "Data gagal ditemukan",
+            ], 400);
+        }
+    }
+
 
     // Laporan Pemasukan
 
@@ -196,11 +246,21 @@ class ReportController extends Controller
 
         $income = $queryIncome->sum('total_price');
 
-        return response()->json([
+        $response = [
             'status' => 'Success',
-            'message' => 'List Data Laporan',
-            'income' => $income,
-        ]);
+            'message' => 'List Data Laporan Pengeluaran',
+            'income' => $income
+        ];
+
+        if ($income) {
+            return response()->json($response);
+        } else {
+            return response()->json([
+                'status' => 'Failed',
+                'message' => "Data gagal ditemukan",
+                'income' => '0'
+            ], 400);
+        }
     }
 
 
@@ -271,6 +331,7 @@ class ReportController extends Controller
             return response()->json([
                 'status' => 'Failed',
                 'message' => "Data gagal ditemukan",
+                'outcome' => '0'
             ], 400);
         }
     }
@@ -339,6 +400,7 @@ class ReportController extends Controller
         }
 
         $outcome = $queryOutcome->sum('price');
+
         // $outcome = Report::orderBy('id', 'DESC')->sum('price');
 
         $revenue = $income - $outcome;
@@ -349,7 +411,7 @@ class ReportController extends Controller
             'message' => 'Laporan Keuntungan',
             'income' => $income,
             'outcome' => $outcome,
-            'revenue' => $revenue
+            'revenue' => "$revenue"
         ];
 
         if ($revenue) {

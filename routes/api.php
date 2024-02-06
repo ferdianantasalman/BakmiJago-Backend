@@ -55,6 +55,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
     // Report
     Route::get('reports', [ReportController::class, 'index']);
+    Route::get('reports_time/{time}', [ReportController::class, 'reportsByTime']);
     Route::post('reports', [ReportController::class, 'store']);
     Route::get('reports/{id}', [ReportController::class, 'show']);
     Route::post('reports/{id}', [ReportController::class, 'update']);

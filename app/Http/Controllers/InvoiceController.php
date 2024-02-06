@@ -64,7 +64,7 @@ class InvoiceController extends Controller
                 break;
         }
 
-        $invoices = $query->get();
+        $invoices = $query->orderBy('id', 'DESC')->get();
 
 
         $response = [
